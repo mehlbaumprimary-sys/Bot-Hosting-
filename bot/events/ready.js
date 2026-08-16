@@ -1,91 +1,121 @@
 /**
- * Ready event handler
- * Runs when bot successfully connects
+ * 🚀 Ready Event Handler
+ * Runs when bot successfully connects to Discord
+ * EVERYTHING WITH EMOJIS! 🎉
  */
 
 const { logger } = require('../logger');
-const constants = require('../constants');
 const os = require('os');
 
 module.exports = {
     name: 'ready',
     once: true,
     async execute(client) {
-        // Log startup banner
-        logger.banner();
+        console.log('\n' + '='.repeat(70));
+        console.log('🎮'.repeat(20));
+        console.log('='.repeat(70));
         
-        // Basic Info
-        logger.section('Bot Information');
-        logger.info(`Name: ${client.user.tag}`);
-        logger.info(`ID: ${client.user.id}`);
-        logger.info(`Status: 🟢 Online`);
-        logger.info(`Prefix: ${process.env.PREFIX || '~-'}`);
-        logger.info(`Commands: ${client.commands.size}`);
-        logger.info(`Aliases: ${Object.keys(require('../utils/helpers').commandAliases).length}`);
+        // 🎯 BOT INFORMATION
+        console.log('\n📝 **BOT INFORMATION**');
+        console.log('─'.repeat(70));
+        console.log(`  🤖 Bot Name:     ${client.user.tag}`);
+        console.log(`  🆔 Bot ID:       ${client.user.id}`);
+        console.log(`  🟢 Status:       Online`);
+        console.log(`  ⚡ Prefix:       ${process.env.PREFIX || '~-'}`);
+        console.log(`  📋 Commands:     ${client.commands.size}`);
+        console.log(`  🔗 Aliases:      ${Object.keys(require('../utils/helpers').commandAliases).length}`);
         
-        // Statistics
-        logger.section('Statistics');
-        logger.info(`Servers: ${client.guilds.cache.size}`);
-        logger.info(`Users: ${client.users.cache.size.toLocaleString()}`);
-        logger.info(`Channels: ${client.channels.cache.size}`);
-        logger.info(`Ping: ${client.ws.ping}ms`);
+        // 📊 STATISTICS
+        console.log('\n📊 **BOT STATISTICS**');
+        console.log('─'.repeat(70));
+        console.log(`  🏠 Servers:      ${client.guilds.cache.size}`);
+        console.log(`  👥 Users:        ${client.users.cache.size.toLocaleString()}`);
+        console.log(`  📺 Channels:     ${client.channels.cache.size}`);
+        console.log(`  ⏱️  Ping:         ${client.ws.ping}ms`);
         
-        // System Info
-        logger.section('System Information');
+        // 💻 SYSTEM INFORMATION
+        console.log('\n💻 **SYSTEM INFORMATION**');
+        console.log('─'.repeat(70));
         const totalMemory = os.totalmem() / 1024 / 1024 / 1024;
         const usedMemory = (os.totalmem() - os.freemem()) / 1024 / 1024 / 1024;
         const memoryUsage = ((usedMemory / totalMemory) * 100).toFixed(2);
         const cpuUsage = os.loadavg()[0].toFixed(2);
         
-        logger.info(`Platform: ${os.platform()} ${os.release()}`);
-        logger.info(`Architecture: ${os.arch()}`);
-        logger.info(`CPU Cores: ${os.cpus().length}`);
-        logger.info(`CPU Usage: ${cpuUsage}%`);
-        logger.info(`Memory: ${usedMemory.toFixed(2)}GB / ${totalMemory.toFixed(2)}GB (${memoryUsage}%)`);
-        logger.info(`Node.js: ${process.version}`);
-        logger.info(`Discord.js: ${require('discord.js').version}`);
+        console.log(`  🖥️  Platform:    ${os.platform()} ${os.release()}`);
+        console.log(`  🔧 Arch:        ${os.arch()}`);
+        console.log(`  🧠 CPU Cores:   ${os.cpus().length}`);
+        console.log(`  🌡️  CPU Usage:   ${cpuUsage}%`);
+        console.log(`  💾 Memory:      ${usedMemory.toFixed(2)}GB / ${totalMemory.toFixed(2)}GB (${memoryUsage}%)`);
+        console.log(`  📦 Node.js:     ${process.version}`);
+        console.log(`  📦 Discord.js:  ${require('discord.js').version}`);
         
-        // Server Details (first 5)
+        // 🏠 SERVER DETAILS (First 5)
         if (client.guilds.cache.size > 0) {
-            logger.section('Server Details');
+            console.log('\n🏠 **SERVER DETAILS**');
+            console.log('─'.repeat(70));
             let count = 0;
             for (const guild of client.guilds.cache.values()) {
                 if (count >= 5) {
-                    logger.info(`... and ${client.guilds.cache.size - 5} more servers`);
+                    console.log(`  ... and ${client.guilds.cache.size - 5} more servers 🌟`);
                     break;
                 }
                 const owner = await guild.fetchOwner().catch(() => null);
-                logger.info(`${guild.name} (${guild.id})`);
-                logger.info(`  Members: ${guild.memberCount} | Owner: ${owner ? owner.user.tag : 'Unknown'}`);
-                logger.info(`  Created: ${guild.createdAt.toLocaleDateString()}`);
+                console.log(`  📌 ${guild.name}`);
+                console.log(`     🆔 ID: ${guild.id}`);
+                console.log(`     👥 Members: ${guild.memberCount}`);
+                console.log(`     👑 Owner: ${owner ? owner.user.tag : 'Unknown'}`);
+                console.log(`     📅 Created: ${guild.createdAt.toLocaleDateString()}`);
+                console.log(`     🎨 Roles: ${guild.roles.cache.size - 1}`);
+                console.log(`     😀 Emojis: ${guild.emojis.cache.size}`);
+                console.log(`     ⚡ Boost: Level ${guild.premiumTier} (${guild.premiumSubscriptionCount || 0} boosts)`);
                 count++;
             }
         }
         
-        // Command List
-        logger.section('Command List');
+        // 📋 COMMAND LIST
+        console.log('\n📋 **COMMAND LIST**');
+        console.log('─'.repeat(70));
         const commandList = require('../utils/helpers').getCommandList();
         for (const [name, data] of Object.entries(commandList)) {
-            logger.info(`${data.main.padEnd(15)} → ${data.display}`);
+            console.log(`  ${name.padEnd(15)} → ${data.display}`);
         }
         
-        // Final Status
-        logger.section('Status');
-        logger.success('Bot is ready and fully operational!');
-        logger.info(`Started at: ${new Date().toLocaleString()}`);
-        logger.divider('=', 60);
-        logger.info('🚀 Bot is now online and ready to serve!');
-        logger.divider('=', 60);
+        // 🎮 RPC STATUS
+        console.log('\n🎮 **RICH PRESENCE (RPC)**');
+        console.log('─'.repeat(70));
+        console.log(`  ✅ RPC Initialized successfully!`);
+        console.log(`  🔄 Status: ${client.guilds.cache.size} servers | ${process.env.PREFIX || '~-'}help`);
         
-        // Set presence
+        // ⏱️ UPTIME
+        console.log('\n⏱️ **UPTIME DETAILS**');
+        console.log('─'.repeat(70));
+        console.log(`  🚀 Started at: ${new Date().toLocaleString()}`);
+        console.log(`  ⚡ Ping: ${client.ws.ping}ms`);
+        
+        // ✅ FINAL STATUS
+        console.log('\n' + '='.repeat(70));
+        console.log('✅ **BOT IS READY AND FULLY OPERATIONAL!** 🎉');
+        console.log('='.repeat(70));
+        console.log('🎮'.repeat(20));
+        console.log('='.repeat(70) + '\n');
+        
+        // Set presence with emojis
         client.user.setPresence({
             activities: [
                 {
-                    name: `${client.guilds.cache.size} servers | ${process.env.PREFIX || '~-'}help`,
+                    name: `🎮 ${client.guilds.cache.size} servers | ${process.env.PREFIX || '~-'}help`,
                     type: 3 // Watching
                 }
             ],
             status: 'online'
         });
+        
+        // Log to file with emojis
+        logger.success(`🤖 Bot ${client.user.tag} is now online!`);
+        logger.info(`🏠 Connected to ${client.guilds.cache.size} servers`);
+        logger.info(`👥 Serving ${client.users.cache.size.toLocaleString()} users`);
+        logger.info(`⚡ Ping: ${client.ws.ping}ms`);
+        logger.info(`📋 ${client.commands.size} commands loaded`);
+        logger.success(`🎮 RPC initialized!`);
     }
 };
