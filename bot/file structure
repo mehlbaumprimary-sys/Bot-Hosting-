@@ -1,0 +1,22 @@
+bot/
+├── index.js
+├── config.js
+├── .env
+├── package.json
+└── commands/
+    ├── help.js
+    ├── ping.js
+    ├── uptime.js
+    ├── status.js
+    ├── reload.js
+    ├── userlookup.js
+    ├── botlookup.js
+    ├── getuserid.js
+    ├── getbotid.js
+    ├── emojilist.js
+    ├── stickerslist.js
+    ├── rolelist.js
+    ├── roleinfo.js
+    ├── serverinfo.js
+    ├── userinfo.js
+    └── botinfo.js
