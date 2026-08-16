@@ -3,6 +3,8 @@ bot/
 ├── config.js
 ├── .env
 ├── package.json
+├── utils/
+│   └── helpers.js
 └── commands/
     ├── help.js
     ├── ping.js
