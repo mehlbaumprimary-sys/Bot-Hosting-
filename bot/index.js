@@ -1,6 +1,6 @@
-const { Client, GatewayIntentBits, Collection, REST, Routes } = require('discord.js');
+const { Client, GatewayIntentBits, Collection, REST, Routes, EmbedBuilder } = require('discord.js');
 const config = require('./config');
-const Helpers = require('./utils/helpers');
+const helpers = require('./utils/helpers');
 const fs = require('fs');
 const path = require('path');
 
@@ -43,7 +43,7 @@ const rest = new REST({ version: '10' }).setToken(config.token);
     }
 })();
 
-// Message prefix commands with alias support
+// Message prefix commands - UPDATED TO USE HELPERS
 client.on('messageCreate', async message => {
     if (message.author.bot) return;
     if (!message.content.startsWith(config.prefix)) return;
@@ -51,14 +51,12 @@ client.on('messageCreate', async message => {
     const args = message.content.slice(config.prefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
 
-    // Check if command exists or is an alias
-    let actualCommand = Helpers.getMainCommand(commandName);
-    if (!actualCommand) {
-        // Try direct match
-        actualCommand = commandName;
-    }
-
-    const command = client.commands.get(actualCommand);
+    // Check if the command name is an alias using helpers
+    const mainCommand = helpers.getMainCommand(commandName);
+    
+    // If it's not an alias, try direct match
+    const command = mainCommand ? client.commands.get(mainCommand) : client.commands.get(commandName);
+    
     if (!command) return;
 
     try {
@@ -88,8 +86,7 @@ client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
     console.log(`Prefix: ${config.prefix}`);
     console.log(`Loaded ${client.commands.size} commands`);
-    console.log(`Serving ${client.guilds.cache.size} servers`);
-    console.log(`Bot Stats:`, Helpers.getBotStats(client));
+    console.log(`Aliases loaded:`, helpers.getAllCommandNames());
 });
 
 client.login(config.token);
