@@ -1,5 +1,6 @@
 /**
- * Bot metrics and statistics tracking
+ * 📊 Bot Metrics Collector
+ * Tracks everything with emojis! 🎯
  */
 
 const { logger } = require('../logger');
@@ -64,7 +65,9 @@ class MetricsCollector {
             this.aggregateMetrics();
         }, 300000);
         
-        logger.info('📊 Metrics collection started');
+        logger.success('📊 Metrics collection started!');
+        logger.info('🔄 Collecting metrics every 30 seconds');
+        logger.info('📈 Aggregating every 5 minutes');
     }
 
     collectSystemMetricsData() {
@@ -85,6 +88,7 @@ class MetricsCollector {
 
     trackCommand(commandName, userId, guildId) {
         this.metrics.commands.total++;
+        logger.debug(`📝 Command tracked: ${commandName} (by ${userId})`);
         
         // By command
         const cmdCount = this.metrics.commands.byCommand.get(commandName) || 0;
@@ -116,6 +120,7 @@ class MetricsCollector {
         
         const cmdCount = this.metrics.interactions.byCommand.get(commandName) || 0;
         this.metrics.interactions.byCommand.set(commandName, cmdCount + 1);
+        logger.debug(`🎮 Interaction tracked: ${commandName}`);
     }
 
     trackError(errorType) {
@@ -123,6 +128,7 @@ class MetricsCollector {
         
         const count = this.metrics.errors.byType.get(errorType) || 0;
         this.metrics.errors.byType.set(errorType, count + 1);
+        logger.error(`❌ Error tracked: ${errorType} (Total: ${this.metrics.errors.total})`);
     }
 
     trackPing(ping) {
@@ -184,22 +190,38 @@ class MetricsCollector {
             ? this.metrics.system.memory.reduce((a, b) => a + b, 0) / this.metrics.system.memory.length 
             : 0;
         
-        // Log aggregated metrics
-        logger.section('📊 Metrics Aggregation');
-        logger.info(`Uptime: ${uptime}`);
-        logger.info(`Total Commands: ${totalCommands.toLocaleString()}`);
-        logger.info(`Total Messages: ${totalMessages.toLocaleString()}`);
-        logger.info(`Average Ping: ${avgPing.toFixed(2)}ms`);
-        logger.info(`Errors: ${this.metrics.errors.total}`);
+        // 📊 Log aggregated metrics with EMOJIS!
+        console.log('\n' + '='.repeat(60));
+        console.log('📊 **METRICS AGGREGATION**');
+        console.log('='.repeat(60));
+        console.log(`  ⏱️  Uptime:        ${uptime}`);
+        console.log(`  📝 Total Commands: ${totalCommands.toLocaleString()}`);
+        console.log(`  💬 Total Messages: ${totalMessages.toLocaleString()}`);
+        console.log(`  ⚡ Avg Ping:       ${avgPing.toFixed(2)}ms`);
+        console.log(`  ❌ Errors:         ${this.metrics.errors.total}`);
+        console.log(`  🏠 Servers:        ${this.client.guilds.cache.size}`);
+        console.log(`  👥 Users:          ${this.client.users.cache.size.toLocaleString()}`);
         
         if (topCommands.length > 0) {
-            logger.info('Top Commands:');
-            topCommands.forEach(([cmd, count]) => {
-                logger.info(`  ${cmd}: ${count} uses`);
+            console.log('\n  🏆 **TOP COMMANDS**');
+            topCommands.forEach(([cmd, count], index) => {
+                const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+                console.log(`    ${medals[index] || '•'} ${cmd}: ${count} uses`);
             });
         }
         
-        logger.info(`System - CPU: ${avgCpu.toFixed(2)}% | Memory: ${avgMemory.toFixed(2)}%`);
+        if (topUsers.length > 0) {
+            console.log('\n  👑 **TOP USERS**');
+            topUsers.forEach(([user, count], index) => {
+                const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+                console.log(`    ${medals[index] || '•'} <@${user}>: ${count} commands`);
+            });
+        }
+        
+        console.log('\n  💻 **SYSTEM METRICS**');
+        console.log(`    🌡️  Avg CPU:     ${avgCpu.toFixed(2)}%`);
+        console.log(`    💾 Avg Memory:   ${avgMemory.toFixed(2)}%`);
+        console.log('='.repeat(60) + '\n');
     }
 
     getMetrics() {
@@ -230,7 +252,7 @@ class MetricsCollector {
             clearInterval(this.aggregateInterval);
             this.aggregateInterval = null;
         }
-        logger.info('📊 Metrics collection stopped');
+        logger.info('📊 Metrics collection stopped!');
     }
 }
 
