@@ -17,5 +17,18 @@ module.exports = {
         idle: '🟡',
         dnd: '🔴',
         offline: '⚫'
+    },
+    // RPC Configuration
+    rpc: {
+        enabled: true,
+        clientId: process.env.CLIENT_ID, // Same as bot client ID
+        largeImageKey: 'bot_icon', // You need to upload this to Discord Developer Portal
+        largeImageText: 'Discord Bot',
+        smallImageKey: 'online',
+        smallImageText: 'Online',
+        details: 'Managing servers',
+        state: 'Ready to help!',
+        buttonLabel: 'Invite Me',
+        buttonUrl: 'https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot'
     }
 };
