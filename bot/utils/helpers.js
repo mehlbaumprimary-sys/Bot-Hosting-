@@ -1,8 +1,3 @@
-/**
- * Command aliases and variations
- * This file handles all the different command name variations
- */
-
 const commandAliases = {
     // Help command variations
     help: ['help', 'commands', 'cmds', 'h', '?'],
@@ -50,86 +45,15 @@ const commandAliases = {
     userinfo: ['userinfo', 'user', 'ui'],
     
     // Bot info variations
-    botinfo: ['botinfo', 'bot', 'bi']
-};
-
-/**
- * Get the main command name from an alias
- * @param {string} alias - The alias to look up
- * @returns {string|null} - The main command name or null if not found
- */
-function getMainCommand(alias) {
-    const lowerAlias = alias.toLowerCase();
+    botinfo: ['botinfo', 'bot', 'bi'],
     
-    for (const [mainCommand, aliases] of Object.entries(commandAliases)) {
-        if (aliases.includes(lowerAlias)) {
-            return mainCommand;
-        }
-    }
+    // NEW COMMANDS
+    // System info variations
+    systeminfo: ['systeminfo', 'sysinfo', 'system', 'si', 'sys'],
     
-    return null;
-}
-
-/**
- * Get all aliases for a specific command
- * @param {string} commandName - The main command name
- * @returns {Array} - Array of aliases
- */
-function getCommandAliases(commandName) {
-    return commandAliases[commandName] || [];
-}
-
-/**
- * Check if a command name is valid
- * @param {string} commandName - The command name to check
- * @returns {boolean} - True if valid
- */
-function isValidCommand(commandName) {
-    return commandAliases.hasOwnProperty(commandName);
-}
-
-/**
- * Get all command names (main ones only)
- * @returns {Array} - Array of all main command names
- */
-function getAllCommandNames() {
-    return Object.keys(commandAliases);
-}
-
-/**
- * Get a formatted list of commands with their aliases
- * @returns {Object} - Object with command names and their aliases
- */
-function getCommandList() {
-    const list = {};
+    // Bot version variations
+    botversion: ['botversion', 'version', 'bv', 'v'],
     
-    for (const [mainCommand, aliases] of Object.entries(commandAliases)) {
-        list[mainCommand] = {
-            main: mainCommand,
-            aliases: aliases,
-            display: aliases.join(', ')
-        };
-    }
-    
-    return list;
-}
-
-/**
- * Format a command name for display
- * @param {string} commandName - The command name
- * @returns {string} - Formatted display name
- */
-function formatCommandName(commandName) {
-    const formatted = commandName.charAt(0).toUpperCase() + commandName.slice(1);
-    return formatted.replace(/([A-Z])/g, ' $1').trim();
-}
-
-module.exports = {
-    commandAliases,
-    getMainCommand,
-    getCommandAliases,
-    isValidCommand,
-    getAllCommandNames,
-    getCommandList,
-    formatCommandName
+    // Stats variations
+    stats: ['stats', 'statistics', 'botstats', 'metrics']
 };
