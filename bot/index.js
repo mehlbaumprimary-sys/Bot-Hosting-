@@ -29,17 +29,18 @@ for (const file of commandFiles) {
     commands.push(command.data.toJSON());
 }
 
-// Register slash commands
+// Register slash commands GLOBALLY (no guild ID needed)
 const rest = new REST({ version: '10' }).setToken(config.token);
 
 (async () => {
     try {
-        console.log('🔄 Registering slash commands...');
+        console.log('🔄 Registering global slash commands...');
         await rest.put(
-            Routes.applicationGuildCommands(config.clientId, config.guildId),
+            Routes.applicationCommands(config.clientId), // Global commands
             { body: commands }
         );
-        console.log('✅ Slash commands registered successfully!');
+        console.log('✅ Global slash commands registered successfully!');
+        console.log(`📋 Registered ${commands.length} commands globally`);
     } catch (error) {
         console.error('❌ Failed to register slash commands:', error);
     }
@@ -111,19 +112,27 @@ client.once('ready', async () => {
     console.log(`  Aliases:      ${Object.keys(helpers.commandAliases).length}`);
     
     // Server Details
-    console.log(`\n🏠 SERVER DETAILS`);
-    console.log('─'.repeat(40));
-    for (const guild of client.guilds.cache.values()) {
-        await guild.fetch();
-        const owner = await guild.fetchOwner().catch(() => null);
-        console.log(`  ${guild.name}`);
-        console.log(`    ID:        ${guild.id}`);
-        console.log(`    Members:   ${guild.memberCount}`);
-        console.log(`    Owner:     ${owner ? owner.user.tag : 'Unknown'}`);
-        console.log(`    Created:   ${guild.createdAt.toLocaleDateString()}`);
-        console.log(`    Roles:     ${guild.roles.cache.size - 1}`);
-        console.log(`    Emojis:    ${guild.emojis.cache.size}`);
-        console.log(`    Boost:     Level ${guild.premiumTier} (${guild.premiumSubscriptionCount || 0} boosts)`);
+    if (client.guilds.cache.size > 0) {
+        console.log(`\n🏠 SERVER DETAILS`);
+        console.log('─'.repeat(40));
+        let serverCount = 0;
+        for (const guild of client.guilds.cache.values()) {
+            if (serverCount >= 5) {
+                console.log(`  ... and ${client.guilds.cache.size - 5} more servers`);
+                break;
+            }
+            await guild.fetch();
+            const owner = await guild.fetchOwner().catch(() => null);
+            console.log(`  ${guild.name}`);
+            console.log(`    ID:        ${guild.id}`);
+            console.log(`    Members:   ${guild.memberCount}`);
+            console.log(`    Owner:     ${owner ? owner.user.tag : 'Unknown'}`);
+            console.log(`    Created:   ${guild.createdAt.toLocaleDateString()}`);
+            console.log(`    Roles:     ${guild.roles.cache.size - 1}`);
+            console.log(`    Emojis:    ${guild.emojis.cache.size}`);
+            console.log(`    Boost:     Level ${guild.premiumTier} (${guild.premiumSubscriptionCount || 0} boosts)`);
+            serverCount++;
+        }
     }
     
     // System Information
