@@ -6,7 +6,12 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "logs": "tail -f logs/bot-*.log",
+    "clear-logs": "rm -rf logs/*.log",
+    "stats": "node -e \"console.log(require('os').loadavg()[0].toFixed(2) + '%')\"",
+    "check": "node -e \"console.log(require('discord.js').version)\"",
+    "update": "npm update && npm audit fix"
   },
   "keywords": [
     "discord",
