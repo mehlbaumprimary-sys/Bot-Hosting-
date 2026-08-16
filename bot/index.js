@@ -1,6 +1,7 @@
 const { Client, GatewayIntentBits, Collection, REST, Routes, EmbedBuilder, ActivityType } = require('discord.js');
 const config = require('./config');
 const helpers = require('./utils/helpers');
+const RPCManager = require('./utils/rpc');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -83,6 +84,9 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
+// Initialize RPC
+let rpcManager = null;
+
 // Detailed ready event
 client.once('ready', async () => {
     console.log('\n' + '='.repeat(60));
@@ -158,6 +162,12 @@ client.once('ready', async () => {
     console.log(`  Setting bot status...`);
     console.log(`  Activity: Watching ${client.guilds.cache.size} servers`);
     
+    // Initialize RPC
+    console.log(`\n🎮 RICH PRESENCE (RPC)`);
+    console.log('─'.repeat(40));
+    rpcManager = new RPCManager(client);
+    await rpcManager.initialize();
+    
     console.log('\n' + '='.repeat(60));
     console.log('✅ BOT IS READY AND FULLY OPERATIONAL!');
     console.log('='.repeat(60) + '\n');
@@ -172,6 +182,25 @@ client.once('ready', async () => {
         ],
         status: 'online'
     });
+});
+
+// Clean up RPC on shutdown
+process.on('SIGINT', () => {
+    console.log('\n🛑 Shutting down...');
+    if (rpcManager) {
+        rpcManager.destroy();
+    }
+    client.destroy();
+    process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+    console.log('\n🛑 Shutting down...');
+    if (rpcManager) {
+        rpcManager.destroy();
+    }
+    client.destroy();
+    process.exit(0);
 });
 
 // Error handling
