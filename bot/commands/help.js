@@ -31,9 +31,13 @@ module.exports = {
                     '`~-serverinfo` - Gets server info (aliases: ~-server, ~-si)' },
                 { name: 'User Commands', value: 
                     '`~-userinfo [user]` - Gets detailed user info (20 items) (aliases: ~-user, ~-ui)\n' +
-                    '`~-botinfo [bot]` - Gets detailed bot info (20 items) (aliases: ~-bot, ~-bi)' }
+                    '`~-botinfo [bot]` - Gets detailed bot info (20 items) (aliases: ~-bot, ~-bi)' },
+                { name: 'System Commands', value: 
+                    '`~-systeminfo` - Shows detailed system info (aliases: ~-sysinfo, ~-sys)\n' +
+                    '`~-botversion` - Shows bot version info (aliases: ~-version, ~-bv)\n' +
+                    '`~-stats` - Shows detailed bot statistics (aliases: ~-statistics, ~-metrics)' }
             )
-            .setFooter({ text: `Prefix: ${process.env.PREFIX || '~-'} | Total Commands: 15` })
+            .setFooter({ text: `Prefix: ${process.env.PREFIX || '~-'} | Total Commands: 18` })
             .setTimestamp();
 
         await message.reply({ embeds: [embed] });
@@ -64,9 +68,13 @@ module.exports = {
                     '`/serverinfo` - Gets server info' },
                 { name: 'User Commands', value: 
                     '`/userinfo [user]` - Gets detailed user info (20 items)\n' +
-                    '`/botinfo [bot]` - Gets detailed bot info (20 items)' }
+                    '`/botinfo [bot]` - Gets detailed bot info (20 items)' },
+                { name: 'System Commands', value: 
+                    '`/systeminfo` - Shows detailed system info\n' +
+                    '`/botversion` - Shows bot version info\n' +
+                    '`/stats` - Shows detailed bot statistics' }
             )
-            .setFooter({ text: `Total Commands: 15` })
+            .setFooter({ text: `Total Commands: 18` })
             .setTimestamp();
 
         await interaction.reply({ embeds: [embed] });
