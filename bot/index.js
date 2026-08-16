@@ -3,11 +3,9 @@ const config = require('./config');
 const helpers = require('./utils/helpers');
 const RPCManager = require('./utils/rpc');
 const { logger } = require('./logger');
-const constants = require('./constants');
 const { MetricsCollector } = require('./monitoring/metrics');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
 
 const client = new Client({
     intents: [
@@ -64,8 +62,8 @@ client.on('messageCreate', async message => {
     try {
         await command.execute(message, args);
     } catch (error) {
-        logger.error(`Command error (${commandName}):`, error);
-        await message.reply('There was an error executing that command!');
+        logger.error(`❌ Command error (${commandName}):`, error);
+        await message.reply('❌ There was an error executing that command!');
     }
 });
 
@@ -79,8 +77,8 @@ client.on('interactionCreate', async interaction => {
     try {
         await command.executeSlash(interaction);
     } catch (error) {
-        logger.error(`Slash command error (${interaction.commandName}):`, error);
-        await interaction.reply({ content: 'There was an error executing that command!', ephemeral: true });
+        logger.error(`❌ Slash command error (${interaction.commandName}):`, error);
+        await interaction.reply({ content: '❌ There was an error executing that command!', ephemeral: true });
     }
 });
 
@@ -88,59 +86,34 @@ client.on('interactionCreate', async interaction => {
 let rpcManager = null;
 let metricsCollector = null;
 
-// Enhanced ready event
+// Load and execute ready event
+const readyEvent = require('./events/ready');
 client.once('ready', async () => {
+    // Execute ready event
+    await readyEvent.execute(client);
+    
     // Initialize metrics
     metricsCollector = new MetricsCollector(client);
     metricsCollector.start();
-    
-    // Log startup
-    logger.header('BOT ONLINE');
-    logger.info(`🤖 ${client.user.tag} is now online!`);
-    logger.info(`📊 Connected to ${client.guilds.cache.size} servers`);
-    logger.info(`👥 Serving ${client.users.cache.size.toLocaleString()} users`);
-    logger.info(`⚡ Ping: ${client.ws.ping}ms`);
+    logger.success('📊 Metrics collector initialized!');
     
     // Initialize RPC
     rpcManager = new RPCManager(client);
     await rpcManager.initialize();
-    logger.success('✅ RPC initialized');
-    
-    // Set presence
-    client.user.setPresence({
-        activities: [
-            {
-                name: `${client.guilds.cache.size} servers | ${config.prefix}help`,
-                type: 3
-            }
-        ],
-        status: 'online'
-    });
-    
-    // Log command count
-    logger.info(`📋 ${client.commands.size} commands loaded`);
-    logger.info(`🔧 ${Object.keys(helpers.commandAliases).length} command groups with aliases`);
-    
-    // System info
-    const totalMemory = os.totalmem() / 1024 / 1024 / 1024;
-    const usedMemory = (os.totalmem() - os.freemem()) / 1024 / 1024 / 1024;
-    logger.info(`💻 Memory: ${usedMemory.toFixed(2)}GB / ${totalMemory.toFixed(2)}GB`);
-    logger.info(`🖥️  Node.js: ${process.version}`);
-    
-    logger.header('READY');
+    logger.success('🎮 RPC initialized!');
 });
 
 // Error handling
 client.on('error', error => {
-    logger.error('Client error:', error);
+    logger.error('❌ Client error:', error);
 });
 
 client.on('warn', warning => {
-    logger.warn('Client warning:', warning);
+    logger.warn('⚠️ Client warning:', warning);
 });
 
 process.on('unhandledRejection', error => {
-    logger.error('Unhandled rejection:', error);
+    logger.error('❌ Unhandled rejection:', error);
 });
 
 process.on('SIGINT', () => {
