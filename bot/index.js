@@ -1,7 +1,10 @@
-const { Client, GatewayIntentBits, Collection, REST, Routes, EmbedBuilder, ActivityType } = require('discord.js');
+const { Client, GatewayIntentBits, Collection, REST, Routes } = require('discord.js');
 const config = require('./config');
 const helpers = require('./utils/helpers');
 const RPCManager = require('./utils/rpc');
+const { logger } = require('./logger');
+const constants = require('./constants');
+const { MetricsCollector } = require('./monitoring/metrics');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -29,20 +32,19 @@ for (const file of commandFiles) {
     commands.push(command.data.toJSON());
 }
 
-// Register slash commands GLOBALLY (no guild ID needed)
+// Register slash commands globally
 const rest = new REST({ version: '10' }).setToken(config.token);
 
 (async () => {
     try {
-        console.log('🔄 Registering global slash commands...');
+        logger.info('🔄 Registering global slash commands...');
         await rest.put(
-            Routes.applicationCommands(config.clientId), // Global commands
+            Routes.applicationCommands(config.clientId),
             { body: commands }
         );
-        console.log('✅ Global slash commands registered successfully!');
-        console.log(`📋 Registered ${commands.length} commands globally`);
+        logger.success(`✅ Registered ${commands.length} global slash commands`);
     } catch (error) {
-        console.error('❌ Failed to register slash commands:', error);
+        logger.error('❌ Failed to register slash commands:', error);
     }
 })();
 
@@ -54,10 +56,7 @@ client.on('messageCreate', async message => {
     const args = message.content.slice(config.prefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
 
-    // Check if the command name is an alias using helpers
     const mainCommand = helpers.getMainCommand(commandName);
-    
-    // If it's not an alias, try direct match
     const command = mainCommand ? client.commands.get(mainCommand) : client.commands.get(commandName);
     
     if (!command) return;
@@ -65,7 +64,7 @@ client.on('messageCreate', async message => {
     try {
         await command.execute(message, args);
     } catch (error) {
-        console.error(error);
+        logger.error(`Command error (${commandName}):`, error);
         await message.reply('There was an error executing that command!');
     }
 });
@@ -80,151 +79,80 @@ client.on('interactionCreate', async interaction => {
     try {
         await command.executeSlash(interaction);
     } catch (error) {
-        console.error(error);
+        logger.error(`Slash command error (${interaction.commandName}):`, error);
         await interaction.reply({ content: 'There was an error executing that command!', ephemeral: true });
     }
 });
 
-// Initialize RPC
+// Initialize RPC and Metrics
 let rpcManager = null;
+let metricsCollector = null;
 
-// Detailed ready event
+// Enhanced ready event
 client.once('ready', async () => {
-    console.log('\n' + '='.repeat(60));
-    console.log('🤖 BOT IS NOW ONLINE!');
-    console.log('='.repeat(60));
+    // Initialize metrics
+    metricsCollector = new MetricsCollector(client);
+    metricsCollector.start();
     
-    // Basic Info
-    console.log(`\n📝 BASIC INFORMATION`);
-    console.log('─'.repeat(40));
-    console.log(`  Bot Name:     ${client.user.tag}`);
-    console.log(`  Bot ID:       ${client.user.id}`);
-    console.log(`  Status:       🟢 Online`);
-    console.log(`  Prefix:       ${config.prefix}`);
-    
-    // Bot Statistics
-    console.log(`\n📊 BOT STATISTICS`);
-    console.log('─'.repeat(40));
-    console.log(`  Servers:      ${client.guilds.cache.size}`);
-    console.log(`  Users:        ${client.users.cache.size}`);
-    console.log(`  Channels:     ${client.channels.cache.size}`);
-    console.log(`  Commands:     ${client.commands.size}`);
-    console.log(`  Aliases:      ${Object.keys(helpers.commandAliases).length}`);
-    
-    // Server Details
-    if (client.guilds.cache.size > 0) {
-        console.log(`\n🏠 SERVER DETAILS`);
-        console.log('─'.repeat(40));
-        let serverCount = 0;
-        for (const guild of client.guilds.cache.values()) {
-            if (serverCount >= 5) {
-                console.log(`  ... and ${client.guilds.cache.size - 5} more servers`);
-                break;
-            }
-            await guild.fetch();
-            const owner = await guild.fetchOwner().catch(() => null);
-            console.log(`  ${guild.name}`);
-            console.log(`    ID:        ${guild.id}`);
-            console.log(`    Members:   ${guild.memberCount}`);
-            console.log(`    Owner:     ${owner ? owner.user.tag : 'Unknown'}`);
-            console.log(`    Created:   ${guild.createdAt.toLocaleDateString()}`);
-            console.log(`    Roles:     ${guild.roles.cache.size - 1}`);
-            console.log(`    Emojis:    ${guild.emojis.cache.size}`);
-            console.log(`    Boost:     Level ${guild.premiumTier} (${guild.premiumSubscriptionCount || 0} boosts)`);
-            serverCount++;
-        }
-    }
-    
-    // System Information
-    console.log(`\n💻 SYSTEM INFORMATION`);
-    console.log('─'.repeat(40));
-    const totalMemory = os.totalmem() / 1024 / 1024 / 1024;
-    const usedMemory = (os.totalmem() - os.freemem()) / 1024 / 1024 / 1024;
-    const memoryUsage = ((usedMemory / totalMemory) * 100).toFixed(2);
-    const cpuUsage = os.loadavg()[0].toFixed(2);
-    
-    console.log(`  Platform:     ${os.platform()} ${os.release()}`);
-    console.log(`  Architecture: ${os.arch()}`);
-    console.log(`  CPU Cores:    ${os.cpus().length}`);
-    console.log(`  CPU Usage:    ${cpuUsage}%`);
-    console.log(`  Memory:       ${usedMemory.toFixed(2)}GB / ${totalMemory.toFixed(2)}GB (${memoryUsage}%)`);
-    console.log(`  Node.js:      ${process.version}`);
-    console.log(`  Discord.js:   ${require('discord.js').version}`);
-    
-    // Uptime Details
-    console.log(`\n⏱️ UPTIME DETAILS`);
-    console.log('─'.repeat(40));
-    console.log(`  Started At:   ${new Date().toLocaleString()}`);
-    console.log(`  Ping:         ${client.ws.ping}ms`);
-    
-    // Command List with Aliases
-    console.log(`\n📋 COMMAND LIST (${client.commands.size} commands)`);
-    console.log('─'.repeat(40));
-    const commandList = helpers.getCommandList();
-    for (const [name, data] of Object.entries(commandList)) {
-        console.log(`  ${data.display}`);
-    }
-    
-    // Status Message
-    console.log(`\n🔄 STATUS UPDATES`);
-    console.log('─'.repeat(40));
-    console.log(`  Setting bot status...`);
-    console.log(`  Activity: Watching ${client.guilds.cache.size} servers`);
+    // Log startup
+    logger.header('BOT ONLINE');
+    logger.info(`🤖 ${client.user.tag} is now online!`);
+    logger.info(`📊 Connected to ${client.guilds.cache.size} servers`);
+    logger.info(`👥 Serving ${client.users.cache.size.toLocaleString()} users`);
+    logger.info(`⚡ Ping: ${client.ws.ping}ms`);
     
     // Initialize RPC
-    console.log(`\n🎮 RICH PRESENCE (RPC)`);
-    console.log('─'.repeat(40));
     rpcManager = new RPCManager(client);
     await rpcManager.initialize();
+    logger.success('✅ RPC initialized');
     
-    console.log('\n' + '='.repeat(60));
-    console.log('✅ BOT IS READY AND FULLY OPERATIONAL!');
-    console.log('='.repeat(60) + '\n');
-    
-    // Set bot status
+    // Set presence
     client.user.setPresence({
         activities: [
             {
                 name: `${client.guilds.cache.size} servers | ${config.prefix}help`,
-                type: ActivityType.Watching
+                type: 3
             }
         ],
         status: 'online'
     });
-});
-
-// Clean up RPC on shutdown
-process.on('SIGINT', () => {
-    console.log('\n🛑 Shutting down...');
-    if (rpcManager) {
-        rpcManager.destroy();
-    }
-    client.destroy();
-    process.exit(0);
-});
-
-process.on('SIGTERM', () => {
-    console.log('\n🛑 Shutting down...');
-    if (rpcManager) {
-        rpcManager.destroy();
-    }
-    client.destroy();
-    process.exit(0);
+    
+    // Log command count
+    logger.info(`📋 ${client.commands.size} commands loaded`);
+    logger.info(`🔧 ${Object.keys(helpers.commandAliases).length} command groups with aliases`);
+    
+    // System info
+    const totalMemory = os.totalmem() / 1024 / 1024 / 1024;
+    const usedMemory = (os.totalmem() - os.freemem()) / 1024 / 1024 / 1024;
+    logger.info(`💻 Memory: ${usedMemory.toFixed(2)}GB / ${totalMemory.toFixed(2)}GB`);
+    logger.info(`🖥️  Node.js: ${process.version}`);
+    
+    logger.header('READY');
 });
 
 // Error handling
 client.on('error', error => {
-    console.error('❌ Client Error:', error);
+    logger.error('Client error:', error);
 });
 
 client.on('warn', warning => {
-    console.warn('⚠️ Warning:', warning);
+    logger.warn('Client warning:', warning);
 });
 
 process.on('unhandledRejection', error => {
-    console.error('❌ Unhandled Promise Rejection:', error);
+    logger.error('Unhandled rejection:', error);
+});
+
+process.on('SIGINT', () => {
+    logger.info('\n🛑 Shutting down...');
+    if (rpcManager) rpcManager.destroy();
+    if (metricsCollector) metricsCollector.stop();
+    client.destroy();
+    process.exit(0);
 });
 
 // Login
-console.log('🚀 Starting bot...');
+logger.info('🚀 Starting bot...');
 client.login(config.token);
+
+module.exports = { client };
