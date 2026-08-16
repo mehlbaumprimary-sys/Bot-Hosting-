@@ -191,4 +191,73 @@ function field(name, value, inline = true) {
  * @returns {object} - Field object
  */
 function divider(text = '━━━━━━━━━━━━━━━━━━━━━') {
-    return { name: text, value: '\u200B', inline
+    return { name: text, value: '\u200B', inline: false };
+}
+
+/**
+ * Create a stats field with progress bar
+ * @param {string} label - Label
+ * @param {number} current - Current value
+ * @param {number} max - Maximum value
+ * @param {string} color - Color (optional)
+ * @returns {string} - Formatted stats with progress bar
+ */
+function progressBar(label, current, max, color = '⬛') {
+    const percent = Math.min((current / max) * 100, 100);
+    const filled = Math.floor(percent / 5);
+    const empty = 20 - filled;
+    const bar = '█'.repeat(filled) + '░'.repeat(empty);
+    
+    return `${label}: ${current}/${max} (${percent.toFixed(1)}%)\n\`[${bar}]\``;
+}
+
+/**
+ * Create a timestamp field
+ * @param {number} timestamp - Unix timestamp
+ * @param {string} format - Format (F, R, D, T, f)
+ * @returns {string} - Formatted timestamp
+ */
+function timestamp(timestamp, format = 'F') {
+    if (typeof timestamp === 'string') {
+        timestamp = parseInt(timestamp);
+    }
+    return `<t:${Math.floor(timestamp / 1000)}:${format}>`;
+}
+
+/**
+ * Create a relative time field
+ * @param {number} timestamp - Unix timestamp
+ * @returns {string} - Relative time
+ */
+function relativeTime(timestamp) {
+    return timestamp(timestamp, 'R');
+}
+
+/**
+ * Add fields in columns
+ * @param {Array} fields - Array of field objects
+ * @param {number} columns - Number of columns (1-3)
+ * @returns {Array} - Array of field objects with inline set
+ */
+function columns(fields, columns = 2) {
+    return fields.map((field, index) => ({
+        ...field,
+        inline: index % columns !== columns - 1
+    }));
+}
+
+module.exports = {
+    createEmbed,
+    successEmbed,
+    errorEmbed,
+    warningEmbed,
+    infoEmbed,
+    loadingEmbed,
+    paginateEmbed,
+    field,
+    divider,
+    progressBar,
+    timestamp,
+    relativeTime,
+    columns
+};
