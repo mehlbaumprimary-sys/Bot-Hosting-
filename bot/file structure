@@ -4,6 +4,8 @@ bot/
 ├── 📄 .env                              # Environment variables
 ├── 📄 package.json                      # Dependencies and scripts
 ├── 📄 package-lock.json                 # Lock file (auto-generated)
+├── 📄 logger.js                         # Advanced logging system
+├── 📄 constants.js                      # All constants in one place
 │
 ├── 📁 utils/                            # Utility functions
 │   ├── 📄 helpers.js                    # Command aliases and helpers
@@ -12,6 +14,12 @@ bot/
 │   ├── 📄 ratelimit.js                  # Rate limiting & cooldowns
 │   ├── 📄 permissions.js                # Permission management
 │   └── 📄 embeds.js                     # Embed builders & pagination
+│
+├── 📁 events/                           # Event handlers
+│   └── 📄 ready.js                      # Enhanced ready event with emojis
+│
+├── 📁 monitoring/                       # Monitoring tools
+│   └── 📄 metrics.js                    # Bot metrics with emojis
 │
 └── 📁 commands/                         # All bot commands (18 total)
     ├── 📄 help.js                       # Help/Commands command
