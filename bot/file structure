@@ -1,28 +1,35 @@
 bot/
-├── 📄 index.js                    # Main bot entry point
-├── 📄 config.js                   # Configuration file
-├── 📄 .env                        # Environment variables (TOKEN, CLIENT_ID, etc.)
-├── 📄 package.json                # Dependencies and scripts
-├── 📄 package-lock.json           # Lock file (auto-generated)
-├── 📁 utils/
-│   └── 📄 helpers.js              # Command aliases and helper functions
-└── 📁 commands/
-    ├── 📄 help.js                 # Help/Commands command
-    ├── 📄 ping.js                 # Ping/Latency command
-    ├── 📄 uptime.js               # Uptime command
-    ├── 📄 status.js               # Status command
-    ├── 📄 reload.js               # Reload command
-    ├── 📄 userlookup.js           # User lookup command
-    ├── 📄 botlookup.js            # Bot lookup command
-    ├── 📄 getuserid.js            # Get user ID command
-    ├── 📄 getbotid.js             # Get bot ID command
-    ├── 📄 emojilist.js            # Emoji list command
-    ├── 📄 stickerslist.js         # Sticker list command
-    ├── 📄 rolelist.js             # Role list command
-    ├── 📄 roleinfo.js             # Role info command
-    ├── 📄 serverinfo.js           # Server info command
-    ├── 📄 userinfo.js             # User info command (20 items)
-    ├── 📄 botinfo.js              # Bot info command (20 items)
-    ├── 📄 systeminfo.js           # System info command
-    ├── 📄 botversion.js           # Bot version command
-    └── 📄 stats.js                # Statistics command
+├── 📄 index.js                          # Main bot entry point
+├── 📄 config.js                         # Configuration file
+├── 📄 .env                              # Environment variables
+├── 📄 package.json                      # Dependencies and scripts
+├── 📄 package-lock.json                 # Lock file (auto-generated)
+│
+├── 📁 utils/                            # Utility functions
+│   ├── 📄 helpers.js                    # Command aliases and helpers
+│   ├── 📄 colors.js                     # Color management & palette
+│   ├── 📄 errors.js                     # Error handling & custom errors
+│   ├── 📄 ratelimit.js                  # Rate limiting & cooldowns
+│   ├── 📄 permissions.js                # Permission management
+│   └── 📄 embeds.js                     # Embed builders & pagination
+│
+└── 📁 commands/                         # All bot commands (18 total)
+    ├── 📄 help.js                       # Help/Commands command
+    ├── 📄 ping.js                       # Ping/Latency command
+    ├── 📄 uptime.js                     # Uptime command
+    ├── 📄 status.js                     # Status command
+    ├── 📄 reload.js                     # Reload command
+    ├── 📄 userlookup.js                 # User lookup command
+    ├── 📄 botlookup.js                  # Bot lookup command
+    ├── 📄 getuserid.js                  # Get user ID command
+    ├── 📄 getbotid.js                   # Get bot ID command
+    ├── 📄 emojilist.js                  # Emoji list command
+    ├── 📄 stickerslist.js               # Sticker list command
+    ├── 📄 rolelist.js                   # Role list command
+    ├── 📄 roleinfo.js                   # Role info command (13 items)
+    ├── 📄 serverinfo.js                 # Server info command (15 items)
+    ├── 📄 userinfo.js                   # User info command (20 items)
+    ├── 📄 botinfo.js                    # Bot info command (20 items)
+    ├── 📄 systeminfo.js                 # System info command
+    ├── 📄 botversion.js                 # Bot version command
+    └── 📄 stats.js                      # Statistics command
